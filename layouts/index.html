@@ -1,0 +1,1961 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    {{ $seo := .Site.Params.seo }}
+    {{ $siteName := $seo.site_name | default .Site.Title }}
+    {{ $doctorNameEn := $seo.doctor_name_en | default .Site.Params.hero.name }}
+    {{ $doctorNameAr := $seo.doctor_name_ar | default "" }}
+    {{ $titleEn := $seo.title | default (printf "%s - %s" $doctorNameEn $siteName) }}
+    {{ $titleAr := $seo.title_ar | default $titleEn }}
+    {{ $desc := $seo.description | default "" }}
+    {{ $kw := $seo.keywords | default (slice) }}
+    {{ $kwAr := $seo.keywords_ar | default (slice) }}
+    {{ $allKw := $kw }}
+    {{ range $kwAr }}
+      {{ $allKw = $allKw | append . }}
+    {{ end }}
+    {{ $keywords := delimit $allKw ", " }}
+
+    <title data-en="{{ $titleEn }}" data-ar="{{ $titleAr }}">{{ $titleEn }}</title>
+    <meta name="description" content="{{ $desc }}">
+    <meta name="keywords" content="{{ $keywords }}">
+    <meta name="author" content="{{ $doctorNameEn }}">
+    <link rel="canonical" href="{{ .Permalink }}">
+    <meta name="robots" content="index,follow">
+    <meta name="googlebot" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1">
+    <meta name="theme-color" content="#2563eb">
+
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{{ $titleEn }}">
+    <meta property="og:description" content="{{ $desc }}">
+    <meta property="og:url" content="{{ .Permalink }}">
+    <meta property="og:site_name" content="{{ $siteName }}">
+    <meta property="og:image" content="{{ ($seo.og_image | default "") | absURL }}">
+
+    <meta name="twitter:card" content="summary_large_image">
+    {{ if $seo.twitter_handle }}
+    <meta name="twitter:site" content="{{ $seo.twitter_handle }}">
+    {{ end }}
+    <meta name="twitter:title" content="{{ $titleEn }}">
+    <meta name="twitter:description" content="{{ $desc }}">
+    <meta name="twitter:image" content="{{ ($seo.og_image | default "") | absURL }}">
+
+    {{ $favicon := $seo.favicon_image | default "" }}
+    {{ if eq $favicon "" }}
+      {{ $favicon = .Site.Params.hero.profile_image | default "" }}
+    {{ end }}
+    {{ if ne $favicon "" }}
+    <link rel="icon" href="{{ $favicon }}" sizes="any">
+    <link rel="shortcut icon" href="{{ $favicon }}">
+    <link rel="apple-touch-icon" href="{{ $favicon }}">
+    {{ end }}
+
+    {{ with .Site.Params.integrations.google_search_console_verification }}
+    {{ if ne . "" }}
+    <meta name="google-site-verification" content="{{ . }}">
+    {{ end }}
+    {{ end }}
+
+    {{ with .Site.Params.integrations.google_analytics_measurement_id }}
+    {{ if ne . "" }}
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ . }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ . }}');
+    </script>
+    {{ end }}
+    {{ end }}
+
+    {{ $clinic := .Site.Params.clinic }}
+    {{ $schemaCfg := .Site.Params.schema }}
+    {{ $clinicName := $clinic.name | default $siteName }}
+    {{ $schema := dict "@context" "https://schema.org" "@type" (slice "Dentist" "LocalBusiness") "name" $clinicName "url" .Permalink "image" (($seo.og_image | default "") | absURL) "telephone" (.Site.Params.contact.phone | default "") "email" (.Site.Params.contact.email | default "") "sameAs" (slice (.Site.Params.contact.instagram | default "") (.Site.Params.contact.facebook | default "") (.Site.Params.contact.linkedin | default "")) "address" (dict "@type" "PostalAddress" "streetAddress" ($schemaCfg.street_address | default (.Site.Params.contact.location.address | default "")) "addressLocality" ($schemaCfg.address_locality | default "") "addressRegion" ($schemaCfg.address_region | default "") "postalCode" ($schemaCfg.postal_code | default "") "addressCountry" ($schemaCfg.address_country | default "")) "geo" (dict "@type" "GeoCoordinates" "latitude" (.Site.Params.contact.location.latitude | default "") "longitude" (.Site.Params.contact.location.longitude | default "")) "openingHours" ($schemaCfg.opening_hours | default (slice)) }}
+    <script type="application/ld+json">{{ $schema | jsonify }}</script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: {{ .Site.Params.theme.primary_color | default "#0ea5e9" }};
+            --secondary-color: {{ .Site.Params.theme.secondary_color | default "#1d4ed8" }};
+            --accent-color: {{ .Site.Params.theme.accent_color | default "#22c55e" }};
+            --text-color: {{ .Site.Params.theme.text_color | default "#0f172a" }};
+            --text-light: {{ .Site.Params.theme.text_light | default "#475569" }};
+            --bg-color: {{ .Site.Params.theme.bg_color | default "#ffffff" }};
+            --bg-secondary: {{ .Site.Params.theme.bg_secondary | default "#f8fafc" }};
+            --border-color: #e5e7eb;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --radius: 1.35rem;
+            --radius-sm: 1rem;
+            --surface: rgba(255, 255, 255, 0.78);
+            --surface-strong: rgba(255, 255, 255, 0.92);
+            --ring: rgba(37, 99, 235, 0.22);
+        }
+
+        [data-theme="girls"] {
+            --primary-color: {{ .Site.Params.theme_girls.primary_color | default "#ec4899" }};
+            --secondary-color: {{ .Site.Params.theme_girls.secondary_color | default "#a855f7" }};
+            --accent-color: {{ .Site.Params.theme_girls.accent_color | default "#22c55e" }};
+            --text-color: {{ .Site.Params.theme_girls.text_color | default "#0f172a" }};
+            --text-light: {{ .Site.Params.theme_girls.text_light | default "#334155" }};
+            --bg-color: {{ .Site.Params.theme_girls.bg_color | default "#fff7fb" }};
+            --bg-secondary: {{ .Site.Params.theme_girls.bg_secondary | default "#ffffff" }};
+            --border-color: rgba(148, 163, 184, 0.35);
+            --ring: rgba(236, 72, 153, 0.20);
+        }
+
+        /* Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            transition: var(--transition);
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--primary-color) 24%, transparent) 0, transparent 42%),
+                radial-gradient(circle at 88% 18%, color-mix(in srgb, var(--secondary-color) 18%, transparent) 0, transparent 44%),
+                radial-gradient(circle at 20% 88%, color-mix(in srgb, var(--accent-color) 16%, transparent) 0, transparent 46%);
+            opacity: 0.9;
+        }
+
+        body[dir="rtl"] {
+            font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+        }
+
+        /* Header */
+        .header {
+            position: sticky;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: color-mix(in srgb, var(--bg-color) 82%, white);
+            border-bottom: 1px solid var(--border-color);
+            z-index: 1000;
+            box-shadow: var(--shadow);
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .menu-btn {
+                display: block;
+            }
+        }
+
+        .header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            min-width: 240px;
+        }
+
+        .header-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            line-height: 1.2;
+        }
+
+        .desktop-nav {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            justify-content: center;
+            flex: 1;
+        }
+
+        .desktop-nav a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            padding: 0.5rem 0.75rem;
+            border-radius: 999px;
+            transition: var(--transition);
+            font-size: 0.95rem;
+            white-space: nowrap;
+        }
+
+        .desktop-nav a:hover, .desktop-nav a.active {
+            background: var(--bg-secondary);
+            color: var(--primary-color);
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .lang-toggle, .theme-toggle {
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            padding: 0.6rem 0.9rem;
+            border-radius: 999px;
+            cursor: pointer;
+            color: var(--text-color);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .lang-toggle:hover, .theme-toggle:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: translateY(-2px) rotate(-1deg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .theme-toggle .mode-label {
+            font-weight: 800;
+            font-size: 0.9rem;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+        }
+
+        /* Mobile Navigation */
+        .mobile-nav {
+            position: fixed;
+            top: 0;
+            left: -100%;
+            width: 280px;
+            height: 100vh;
+            background: var(--bg-color);
+            box-shadow: var(--shadow-lg);
+            transition: var(--transition);
+            z-index: 1001;
+            overflow-y: auto;
+        }
+
+        .mobile-nav.active {
+            left: 0;
+        }
+
+        body[dir="rtl"] .mobile-nav {
+            left: auto;
+            right: -100%;
+        }
+
+        body[dir="rtl"] .mobile-nav.active {
+            right: 0;
+        }
+
+        .mobile-nav-content {
+            padding: 2rem;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--text-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .nav-links {
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-bottom: 1rem;
+        }
+
+        .nav-links a {
+            display: block;
+            padding: 1rem;
+            color: var(--text-color);
+            text-decoration: none;
+            border-radius: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            background: var(--primary-color);
+            color: white;
+            transform: translateX(10px);
+        }
+
+        body[dir="rtl"] .nav-links a:hover {
+            transform: translateX(-10px);
+        }
+
+        /* Main Content */
+        .portfolio-container {
+            padding: 0;
+        }
+
+        .section {
+            padding: 4rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section.section-muted {
+            background: var(--bg-secondary);
+            max-width: none;
+        }
+
+        .section.section-muted > .section-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .icon-circle {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            color: white;
+            font-size: 1.5rem;
+            box-shadow: 0 12px 24px -18px color-mix(in srgb, var(--primary-color) 70%, transparent);
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.03em;
+        }
+
+        .section-subtitle {
+            color: var(--text-light);
+            font-size: 1.1rem;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            padding: 2.5rem 2rem 3.5rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .hero-surface {
+            border-radius: calc(var(--radius) + 0.5rem);
+            background:
+                linear-gradient(135deg, color-mix(in srgb, var(--primary-color) 14%, transparent), color-mix(in srgb, var(--secondary-color) 10%, transparent)),
+                radial-gradient(circle at 14% 22%, color-mix(in srgb, var(--accent-color) 14%, transparent) 0, transparent 38%);
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .hero-grid {
+            display: grid;
+            grid-template-columns: 1.1fr 0.9fr;
+            gap: 2rem;
+            align-items: center;
+            padding: 2.25rem;
+        }
+
+        @media (max-width: 900px) {
+            .desktop-nav {
+                display: none;
+            }
+            .hero-grid {
+                grid-template-columns: 1fr;
+            }
+            .header-logo {
+                min-width: auto;
+            }
+        }
+
+        .hero-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.4rem 0.75rem;
+            border-radius: 999px;
+            background: var(--surface-strong);
+            border: 1px solid var(--border-color);
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+            width: fit-content;
+        }
+
+        .hero-name {
+            font-size: 2.6rem;
+            font-weight: 800;
+            margin-bottom: 0.75rem;
+            color: var(--text-color);
+            letter-spacing: -0.02em;
+        }
+
+        .hero-tagline {
+            font-size: 1.25rem;
+            color: var(--text-light);
+            margin-bottom: 1.25rem;
+        }
+
+        .hero-graduation {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-position {
+            font-size: 1rem;
+            padding: 0.9rem 1.1rem;
+            background: var(--surface);
+            border-radius: var(--radius);
+            border: 1px solid var(--border-color);
+            display: inline-block;
+            box-shadow: 0 10px 20px -18px rgba(0,0,0,0.25);
+        }
+
+        .hero-media {
+            position: relative;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hero-media img {
+            width: 100%;
+            height: 100%;
+            max-height: 420px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 0.75rem;
+            margin-top: 1.25rem;
+        }
+
+        @media (max-width: 520px) {
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .stat {
+            background: var(--surface-strong);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.9rem;
+            text-align: left;
+        }
+
+        .stat-value {
+            font-weight: 900;
+            font-size: 1.2rem;
+            color: var(--text-color);
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-label {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Skills Section */
+        .skills-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .skill-category {
+            background: var(--surface-strong);
+            padding: 2rem;
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .skill-category:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .skill-category-title {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            margin-bottom: 1.5rem;
+            color: var(--primary-color);
+        }
+
+        .skill-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .skill-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-color);
+            border-radius: 0.5rem;
+            transition: var(--transition);
+        }
+
+        .skill-item:hover {
+            transform: translateX(10px);
+            background: var(--primary-color);
+            color: white;
+        }
+
+        body[dir="rtl"] .skill-item:hover {
+            transform: translateX(-10px);
+        }
+
+        .skill-number {
+            width: 30px;
+            height: 30px;
+            background: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .skill-item:hover .skill-number {
+            background: white;
+            color: var(--primary-color);
+        }
+
+        /* Education Section */
+        .education-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .university-info {
+            text-align: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            border-radius: 1rem;
+        }
+
+        .university-name {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .degrees-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .degree-item {
+            display: flex;
+            gap: 1.5rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .degree-icon {
+            font-size: 2rem;
+            color: var(--primary-color);
+        }
+
+        .degree-year {
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        /* Timeline */
+        .timeline-container {
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+        }
+
+        .timeline-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .timeline {
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border-color);
+            transform: translateX(-50%);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 3rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .timeline-item:nth-child(odd) {
+            justify-content: flex-end;
+            padding-right: calc(50% + 2rem);
+        }
+
+        .timeline-item:nth-child(even) {
+            justify-content: flex-start;
+            padding-left: calc(50% + 2rem);
+        }
+
+        .timeline-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--primary-color);
+            border: 4px solid var(--bg-color);
+            border-radius: 50%;
+            z-index: 1;
+        }
+
+        .timeline-content {
+            background: var(--bg-color);
+            padding: 1.5rem;
+            border-radius: 1rem;
+            box-shadow: var(--shadow);
+            max-width: 400px;
+        }
+
+        .timeline-year {
+            font-weight: 700;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Certificates */
+        .certificates-container {
+            padding: 2rem;
+        }
+
+        .certificates-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .certificates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .certificate-card {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            cursor: pointer;
+        }
+
+        .certificate-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .certificate-image {
+            width: 100%;
+            height: 300px;
+            object-fit: cover;
+        }
+
+        .certificate-overlay {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+            padding: 2rem 1rem 1rem;
+            color: white;
+        }
+
+        /* Cases Section */
+        .cases-container {
+            display: flex;
+            flex-direction: column;
+            gap: 4rem;
+        }
+
+        .case-category {
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+        }
+
+        .case-category-title {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: var(--primary-color);
+        }
+
+        .cases-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+            justify-items: center;
+        }
+
+        .case-card {
+            background: var(--bg-color);
+            border-radius: 1rem;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .case-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .case-image-wrapper {
+            position: relative;
+            padding-top: 70%;
+            overflow: hidden;
+        }
+
+        .case-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: var(--bg-secondary);
+        }
+
+        .case-description {
+            padding: 1.5rem;
+            text-align: center;
+            color: var(--text-light);
+        }
+
+        /* Blog Section */
+        .blog-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .blog-card {
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+            transition: var(--transition);
+        }
+
+        .blog-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .blog-image img {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .blog-content {
+            padding: 2rem;
+        }
+
+        .blog-meta {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: var(--text-light);
+            font-size: 0.9rem;
+        }
+
+        .blog-title {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .blog-title a {
+            color: var(--text-color);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .blog-title a:hover {
+            color: var(--primary-color);
+        }
+
+        .blog-excerpt {
+            color: var(--text-light);
+            margin-bottom: 1.5rem;
+        }
+
+        .blog-read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .blog-read-more:hover {
+            gap: 1rem;
+        }
+
+        /* Contact Section */
+        .contact-container {
+            display: flex;
+            flex-direction: column;
+            gap: 3rem;
+        }
+
+        .contact-methods {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .contact-method {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+            border: 1px solid var(--border-color);
+            text-decoration: none;
+            color: var(--text-color);
+            transition: var(--transition);
+        }
+
+        .contact-method:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .contact-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .contact-icon.phone {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+        }
+
+        .contact-icon.whatsapp {
+            background: linear-gradient(135deg, #25d366, #128c7e);
+        }
+
+        .contact-icon.email {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+
+        .contact-icon.email i {
+            font-size: 1.4rem;
+            width: 1.4rem;
+            height: 1.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .contact-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .contact-value {
+            color: var(--text-light);
+        }
+
+        .contact-method:has(.contact-icon.email) .contact-value {
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        /* Social Media */
+        .social-media {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+        }
+
+        .social-title {
+            font-size: 1.8rem;
+            margin-bottom: 2rem;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+
+        .social-link {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .social-link:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        .social-link.instagram {
+            background: linear-gradient(135deg, #f58529, #dd2a7b);
+        }
+
+        .social-link.facebook {
+            background: #1877f2;
+        }
+
+        .social-link.linkedin {
+            background: #0a66c2;
+        }
+
+        /* Location */
+        .location-container {
+            padding: 2rem;
+            background: var(--bg-secondary);
+            border-radius: 1rem;
+        }
+
+        .location-title {
+            font-size: 1.8rem;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .location-address {
+            text-align: center;
+            color: var(--text-light);
+            margin-bottom: 2rem;
+        }
+
+        .map-container {
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-secondary {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .location-container .btn-secondary {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .btn-secondary:hover {
+            background: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        /* Footer */
+        .footer {
+            position: static;
+            background: var(--bg-secondary);
+            border-top: 1px solid var(--border-color);
+            z-index: 1;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem 1.25rem;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .footer-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .footer-title {
+            font-weight: 900;
+            font-size: 1.15rem;
+            color: var(--text-color);
+        }
+
+        .footer-muted {
+            color: var(--text-light);
+            line-height: 1.7;
+        }
+
+        .footer-links {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .footer-links a {
+            color: var(--text-color);
+            text-decoration: none;
+            font-weight: 600;
+            width: fit-content;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .footer-info {
+            text-align: center;
+            padding-top: 1.25rem;
+            font-size: 0.9rem;
+            color: var(--text-light);
+            border-top: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        @media (max-width: 700px) {
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .field {
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .field label {
+            font-weight: 700;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+
+        .field input, .field textarea, .field select {
+            padding: 0.9rem 1rem;
+            border-radius: 0.85rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-color);
+            color: var(--text-color);
+            font-size: 1rem;
+        }
+
+        .field textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn-wide {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .trust-badges {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin: 2rem auto 0;
+            max-width: 900px;
+        }
+
+        .trust-badge {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 1rem;
+            padding: 1rem;
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+            text-align: left;
+        }
+
+        .trust-badge i {
+            color: var(--primary-color);
+            font-size: 1.25rem;
+            margin-top: 0.15rem;
+        }
+
+        .cta-row {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-start;
+            flex-wrap: wrap;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+        }
+
+        .btn-primary, .btn-secondary {
+            border-radius: 999px;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .reviews-stars {
+            color: #f59e0b;
+            margin-bottom: 0.75rem;
+        }
+
+        .journey-section {
+            padding-top: 0;
+        }
+
+        .journey-surface {
+            border-radius: calc(var(--radius) + 0.5rem);
+            background: var(--surface);
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .journey-inner {
+            padding: 2.25rem;
+        }
+
+        .journey-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (max-width: 900px) {
+            .journey-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .journey-card {
+            background: var(--surface-strong);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.35rem;
+            position: relative;
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .journey-card::before {
+            content: '';
+            position: absolute;
+            inset: -40px;
+            background:
+                radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--primary-color) 14%, transparent) 0, transparent 40%),
+                radial-gradient(circle at 80% 30%, color-mix(in srgb, var(--secondary-color) 12%, transparent) 0, transparent 42%),
+                radial-gradient(circle at 30% 80%, color-mix(in srgb, var(--accent-color) 10%, transparent) 0, transparent 46%);
+            opacity: 0.9;
+            pointer-events: none;
+        }
+
+        .journey-card:hover {
+            transform: translateY(-6px) rotate(-0.35deg);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .journey-head {
+            display: flex;
+            gap: 0.9rem;
+            align-items: flex-start;
+            position: relative;
+            z-index: 1;
+        }
+
+        .journey-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            box-shadow: 0 14px 26px -18px color-mix(in srgb, var(--primary-color) 70%, transparent);
+        }
+
+        .journey-title {
+            font-weight: 900;
+            font-size: 1.15rem;
+            line-height: 1.25;
+            margin-bottom: 0.35rem;
+            color: var(--text-color);
+        }
+
+        .journey-desc {
+            color: var(--text-light);
+            font-size: 0.98rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header" id="header">
+        <div class="header-content">
+            <button class="menu-btn" id="menuBtn" aria-label="{{ .Site.Params.ui.labels.menu }}">
+                <i class="fas fa-bars"></i>
+            </button>
+            
+            <div class="header-logo">
+                <h1 class="header-name" id="headerName" data-en="{{ .Site.Params.clinic.name }}" data-ar="{{ .Site.Params.clinic.name_ar }}">{{ .Site.Params.clinic.name }}</h1>
+            </div>
+
+            <nav class="desktop-nav" aria-label="Main">
+                <a href="#home" class="active" data-en="{{ .Site.Params.ui.nav.home }}" data-ar="{{ .Site.Params.ar.ui.nav.home }}">{{ .Site.Params.ui.nav.home }}</a>
+                <a href="#services" data-en="{{ .Site.Params.ui.nav.services }}" data-ar="{{ .Site.Params.ar.ui.nav.services }}">{{ .Site.Params.ui.nav.services }}</a>
+                <a href="#team" data-en="{{ .Site.Params.ui.nav.team }}" data-ar="{{ .Site.Params.ar.ui.nav.team }}">{{ .Site.Params.ui.nav.team }}</a>
+                <a href="#gallery" data-en="{{ .Site.Params.ui.nav.gallery }}" data-ar="{{ .Site.Params.ar.ui.nav.gallery }}">{{ .Site.Params.ui.nav.gallery }}</a>
+                <a href="#reviews" data-en="{{ .Site.Params.ui.nav.reviews }}" data-ar="{{ .Site.Params.ar.ui.nav.reviews }}">{{ .Site.Params.ui.nav.reviews }}</a>
+                <a href="#contact" data-en="{{ .Site.Params.ui.nav.contact }}" data-ar="{{ .Site.Params.ar.ui.nav.contact }}">{{ .Site.Params.ui.nav.contact }}</a>
+            </nav>
+            
+            <div class="header-controls">
+                <button class="lang-toggle" id="langToggle" aria-label="{{ .Site.Params.ui.labels.toggle_language }}">
+                    <i class="fas fa-language"></i>
+                    <span class="lang-text">AR</span>
+                </button>
+                
+                <button class="theme-toggle" id="themeToggle" aria-label="{{ .Site.Params.ui.labels.toggle_theme }}">
+                    <i class="fas fa-person" id="themeIcon"></i>
+                    <span
+                        class="mode-label"
+                        id="themeLabel"
+                        data-boys-en="{{ .Site.Params.ui.labels.boys_mode }}"
+                        data-boys-ar="{{ .Site.Params.ar.ui.labels.boys_mode }}"
+                        data-girls-en="{{ .Site.Params.ui.labels.girls_mode }}"
+                        data-girls-ar="{{ .Site.Params.ar.ui.labels.girls_mode }}"
+                    >{{ .Site.Params.ui.labels.boys_mode }}</span>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Mobile Navigation -->
+        <nav class="mobile-nav" id="mobileNav">
+            <div class="mobile-nav-content">
+                <button class="close-btn" id="closeBtn" aria-label="{{ .Site.Params.ui.labels.close }}">
+                    <i class="fas fa-times"></i>
+                </button>
+                <ul class="nav-links">
+                    <li><a href="#home" data-en="{{ .Site.Params.ui.nav.home }}" data-ar="{{ .Site.Params.ar.ui.nav.home }}">{{ .Site.Params.ui.nav.home }}</a></li>
+                    <li><a href="#services" data-en="{{ .Site.Params.ui.nav.services }}" data-ar="{{ .Site.Params.ar.ui.nav.services }}">{{ .Site.Params.ui.nav.services }}</a></li>
+                    <li><a href="#team" data-en="{{ .Site.Params.ui.nav.team }}" data-ar="{{ .Site.Params.ar.ui.nav.team }}">{{ .Site.Params.ui.nav.team }}</a></li>
+                    <li><a href="#gallery" data-en="{{ .Site.Params.ui.nav.gallery }}" data-ar="{{ .Site.Params.ar.ui.nav.gallery }}">{{ .Site.Params.ui.nav.gallery }}</a></li>
+                    <li><a href="#reviews" data-en="{{ .Site.Params.ui.nav.reviews }}" data-ar="{{ .Site.Params.ar.ui.nav.reviews }}">{{ .Site.Params.ui.nav.reviews }}</a></li>
+                    <li><a href="#faq" data-en="{{ .Site.Params.ui.nav.faq }}" data-ar="{{ .Site.Params.ar.ui.nav.faq }}">{{ .Site.Params.ui.nav.faq }}</a></li>
+                    <li><a href="#contact" data-en="{{ .Site.Params.ui.nav.contact }}" data-ar="{{ .Site.Params.ar.ui.nav.contact }}">{{ .Site.Params.ui.nav.contact }}</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <div class="portfolio-container">
+        <!-- Hero Section -->
+        <section id="home" class="section hero-section">
+            <div class="hero-surface">
+                <div class="hero-grid">
+                    <div>
+                        <div class="hero-eyebrow">
+                            <i class="fas fa-tooth"></i>
+                            <span data-en="{{ .Site.Params.hero.current_position.role }}" data-ar="{{ .Site.Params.ar.hero.current_position.role }}">{{ .Site.Params.hero.current_position.role }}</span>
+                        </div>
+
+                        <h1 class="hero-name" id="heroName" data-en="{{ .Site.Params.clinic.name }}" data-ar="{{ .Site.Params.clinic.name_ar }}">{{ .Site.Params.clinic.name }}</h1>
+                        <p class="hero-tagline" id="heroTagline" data-en="{{ .Site.Params.clinic.tagline }}" data-ar="{{ .Site.Params.clinic.tagline_ar }}">{{ .Site.Params.clinic.tagline }}</p>
+                        <p class="hero-graduation" id="heroGraduation" data-en="{{ .Site.Params.clinic.headline }}" data-ar="{{ .Site.Params.clinic.headline_ar }}">{{ .Site.Params.clinic.headline }}</p>
+
+                        <div class="hero-position" id="heroPosition">
+                            <p>
+                                <span data-en="{{ .Site.Params.ui.labels.now_working_as }}" data-ar="{{ .Site.Params.ar.ui.labels.now_working_as }}">{{ .Site.Params.ui.labels.now_working_as }}</span>
+                                <strong id="heroClinic" data-en="{{ .Site.Params.hero.current_position.clinic }}" data-ar="{{ .Site.Params.ar.hero.current_position.clinic }}">{{ .Site.Params.hero.current_position.clinic }}</strong>
+                            </p>
+                        </div>
+
+                        <div class="cta-row">
+                            <a href="#contact" class="btn btn-primary" data-en="{{ .Site.Params.ui.labels.book_appointment }}" data-ar="{{ .Site.Params.ar.ui.labels.book_appointment }}">{{ .Site.Params.ui.labels.book_appointment }}</a>
+                            {{ with .Site.Params.contact.phone }}
+                                <a href="tel:{{ . }}" class="btn btn-secondary" data-en="{{ $.Site.Params.booking.secondary_cta_text }}" data-ar="{{ $.Site.Params.booking.secondary_cta_text_ar }}">{{ $.Site.Params.booking.secondary_cta_text }}</a>
+                            {{ end }}
+                        </div>
+
+                        <p class="hero-graduation" data-en="{{ .Site.Params.booking.note }}" data-ar="{{ .Site.Params.booking.note_ar }}">{{ .Site.Params.booking.note }}</p>
+
+                        <div class="hero-stats" id="heroStats">
+                            {{ range .Site.Params.home.stats }}
+                                <div class="stat">
+                                    <div class="stat-value" data-en="{{ .value }}" data-ar="{{ .value_ar | default .value }}">{{ .value }}</div>
+                                    <div class="stat-label" data-en="{{ .label }}" data-ar="{{ .label_ar | default .label }}">{{ .label }}</div>
+                                </div>
+                            {{ end }}
+                        </div>
+                    </div>
+
+                    <div class="hero-media">
+                        <img 
+                            src="{{ .Site.Params.clinic.hero_image | default .Site.Params.hero.profile_image }}" 
+                            alt="{{ .Site.Params.clinic.hero_image_alt | default .Site.Params.hero.profile_image_alt }}"
+                            data-alt-en="{{ .Site.Params.clinic.hero_image_alt | default .Site.Params.hero.profile_image_alt }}"
+                            data-alt-ar="{{ .Site.Params.clinic.hero_image_alt | default .Site.Params.ar.hero.profile_image_alt }}"
+                            id="profileImage"
+                            loading="eager"
+                        >
+                    </div>
+                </div>
+
+                <div class="trust-badges" id="trustBadges" style="padding: 0 2.25rem 2.25rem; max-width: none; margin: 0;">
+                    {{ range .Site.Params.trust_badges }}
+                        <div class="trust-badge">
+                            <i class="fas {{ .icon }}"></i>
+                            <div>
+                                <strong data-en="{{ .text }}" data-ar="{{ .text_ar | default .text }}">{{ .text }}</strong>
+                            </div>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+        </section>
+
+        {{ with .Site.Params.kids_journey }}
+        <section class="section journey-section">
+            <div class="journey-surface">
+                <div class="journey-inner">
+                    <div class="section-header" style="margin-bottom: 1.5rem;">
+                        <div class="icon-circle">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <h2 class="section-title" data-en="{{ .Site.Params.ui.journey.title | default "" }}" data-ar="{{ .Site.Params.ar.ui.journey.title | default (.Site.Params.ui.journey.title | default "") }}">{{ .Site.Params.ui.journey.title | default "" }}</h2>
+                        <p class="section-subtitle" data-en="{{ .Site.Params.ui.journey.subtitle | default "" }}" data-ar="{{ .Site.Params.ar.ui.journey.subtitle | default (.Site.Params.ui.journey.subtitle | default "") }}">{{ .Site.Params.ui.journey.subtitle | default "" }}</p>
+                    </div>
+
+                    <div class="journey-grid" id="kidsJourney">
+                        {{ range . }}
+                        <div class="journey-card">
+                            <div class="journey-head">
+                                <div class="journey-icon"><i class="fas {{ .icon }}"></i></div>
+                                <div>
+                                    <div class="journey-title" data-en="{{ .title }}" data-ar="{{ .title_ar | default .title }}">{{ .title }}</div>
+                                    <div class="journey-desc" data-en="{{ .description }}" data-ar="{{ .description_ar | default .description }}">{{ .description }}</div>
+                                </div>
+                            </div>
+                        </div>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+        </section>
+        {{ end }}
+
+        <!-- Skills Section -->
+        <section id="services" class="section section-muted">
+            <div class="section-inner">
+                <div class="section-header">
+                    <div class="icon-circle">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h2 class="section-title" data-en="{{ .Site.Params.ui.services.title }}" data-ar="{{ .Site.Params.ar.ui.services.title }}">{{ .Site.Params.ui.services.title }}</h2>
+                    <p class="section-subtitle" data-en="{{ .Site.Params.ui.services.subtitle }}" data-ar="{{ .Site.Params.ar.ui.services.subtitle }}">{{ .Site.Params.ui.services.subtitle }}</p>
+                </div>
+                
+                <div class="skills-container">
+                    {{ range .Site.Params.services.items }}
+                        <div class="skill-category" style="background: var(--bg-color);">
+                            <h3 class="skill-category-title">
+                                <i class="fas {{ .icon }}"></i>
+                                <span data-en="{{ .title }}" data-ar="{{ .title_ar | default .title }}">{{ .title }}</span>
+                            </h3>
+                            <p class="section-subtitle" data-en="{{ .description }}" data-ar="{{ .description_ar | default .description }}">{{ .description }}</p>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+        </section>
+
+        <!-- Education Section -->
+        <section id="team" class="section education-section">
+            <div class="section-header">
+                <div class="icon-circle">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <h2 class="section-title" data-en="{{ .Site.Params.ui.team.title }}" data-ar="{{ .Site.Params.ar.ui.team.title }}">{{ .Site.Params.ui.team.title }}</h2>
+                <p class="section-subtitle" data-en="{{ .Site.Params.ui.team.subtitle }}" data-ar="{{ .Site.Params.ar.ui.team.subtitle }}">{{ .Site.Params.ui.team.subtitle }}</p>
+            </div>
+            
+            <div class="education-container">
+                <div class="degrees-container" id="teamContainer">
+                    {{ range .Site.Params.team.members }}
+                        <div class="degree-item">
+                            <img src="{{ .image }}" alt="{{ .image_alt | default .name }}" class="profile-image" style="width: 90px; height: 90px; border-width: 3px;">
+                            <div class="degree-info">
+                                <strong data-en="{{ .name }}" data-ar="{{ .name_ar | default .name }}">{{ .name }}</strong>
+                                <p data-en="{{ .role }}" data-ar="{{ .role_ar | default .role }}">{{ .role }}</p>
+                                <p class="degree-year" data-en="{{ .bio }}" data-ar="{{ .bio_ar | default .bio }}">{{ .bio }}</p>
+                            </div>
+                        </div>
+                    {{ end }}
+                </div>
+            </div>
+        </section>
+
+        <!-- Cases Section -->
+        <section id="gallery" class="section cases-section">
+            <div class="section-header">
+                <div class="icon-circle">
+                    <i class="fas fa-tooth"></i>
+                </div>
+                <h2 class="section-title" data-en="{{ .Site.Params.ui.gallery.title }}" data-ar="{{ .Site.Params.ar.ui.gallery.title }}">{{ .Site.Params.ui.gallery.title }}</h2>
+                <p class="section-subtitle" data-en="{{ .Site.Params.ui.gallery.subtitle }}" data-ar="{{ .Site.Params.ar.ui.gallery.subtitle }}">{{ .Site.Params.ui.gallery.subtitle }}</p>
+            </div>
+            
+            <div class="cases-container" id="casesContainer">
+                {{ range .Site.Params.clinical_cases }}
+                    {{ if .enabled }}
+                        <div class="case-category">
+                            <h3 class="case-category-title" data-en="{{ .category }}" data-ar="{{ .category_ar | default .category }}">{{ .category }}</h3>
+                            <div class="cases-grid">
+                                {{ range .cases }}
+                                    <div class="case-card">
+                                        <div class="case-image-wrapper single">
+                                            <img src="{{ .photo }}" alt="{{ .alt | default .description }}" data-alt-en="{{ .alt | default .description }}" data-alt-ar="{{ .alt_ar | default (.alt | default .description) }}" class="case-image" loading="lazy">
+                                        </div>
+                                        <div class="case-description">
+                                            <p data-en="{{ .description }}" data-ar="{{ .description_ar | default .description }}">{{ .description }}</p>
+                                        </div>
+                                    </div>
+                                {{ end }}
+                            </div>
+                        </div>
+                    {{ end }}
+                {{ end }}
+            </div>
+        </section>
+
+
+        <section id="reviews" class="section">
+            <div class="section-header">
+                <div class="icon-circle">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h2 class="section-title" data-en="{{ .Site.Params.ui.reviews.title }}" data-ar="{{ .Site.Params.ar.ui.reviews.title }}">{{ .Site.Params.ui.reviews.title }}</h2>
+                <p class="section-subtitle" data-en="{{ .Site.Params.ui.reviews.subtitle }}" data-ar="{{ .Site.Params.ar.ui.reviews.subtitle }}">{{ .Site.Params.ui.reviews.subtitle }}</p>
+            </div>
+
+            <div class="blog-container" id="reviewsContainer">
+                {{ range .Site.Params.reviews.items }}
+                    <div class="blog-card">
+                        <div class="blog-content">
+                            <div class="reviews-stars" aria-label="Rating">
+                                {{ $r := .rating | default 5 }}
+                                {{ range seq 1 $r }}
+                                    <i class="fas fa-star"></i>
+                                {{ end }}
+                            </div>
+                            <div class="blog-meta">
+                                <span data-en="{{ .name }}" data-ar="{{ .name_ar | default .name }}">{{ .name }}</span>
+                            </div>
+                            <p class="blog-excerpt" data-en="{{ .text }}" data-ar="{{ .text_ar | default .text }}">{{ .text }}</p>
+                        </div>
+                    </div>
+                {{ end }}
+            </div>
+        </section>
+
+
+        <section id="faq" class="section">
+            <div class="section-header">
+                <div class="icon-circle">
+                    <i class="fas fa-circle-question"></i>
+                </div>
+                <h2 class="section-title" data-en="{{ .Site.Params.ui.faq.title }}" data-ar="{{ .Site.Params.ar.ui.faq.title }}">{{ .Site.Params.ui.faq.title }}</h2>
+                <p class="section-subtitle" data-en="{{ .Site.Params.ui.faq.subtitle }}" data-ar="{{ .Site.Params.ar.ui.faq.subtitle }}">{{ .Site.Params.ui.faq.subtitle }}</p>
+            </div>
+
+            <div class="skills-container" id="faqContainer">
+                {{ range .Site.Params.faq.items }}
+                    <div class="skill-category">
+                        <details>
+                            <summary style="cursor: pointer; font-weight: 700; color: var(--primary-color);" data-en="{{ .q }}" data-ar="{{ .q_ar | default .q }}">{{ .q }}</summary>
+                            <p style="margin-top: 0.75rem; color: var(--text-light);" data-en="{{ .a }}" data-ar="{{ .a_ar | default .a }}">{{ .a }}</p>
+                        </details>
+                    </div>
+                {{ end }}
+            </div>
+        </section>
+
+
+        <!-- Contact Section -->
+        <section id="contact" class="section contact-section">
+            <div class="section-header">
+                <div class="icon-circle">
+                    <i class="fas fa-envelope"></i>
+                </div>
+                <h2 class="section-title" data-en="{{ .Site.Params.ui.contact.title }}" data-ar="{{ .Site.Params.ar.ui.contact.title }}">{{ .Site.Params.ui.contact.title }}</h2>
+                <p class="section-subtitle" data-en="{{ .Site.Params.ui.contact.subtitle }}" data-ar="{{ .Site.Params.ar.ui.contact.subtitle }}">{{ .Site.Params.ui.contact.subtitle }}</p>
+            </div>
+            
+            <div class="contact-container">
+                <div class="location-container" id="bookingContainer">
+                    <h3 class="location-title" data-en="{{ .Site.Params.booking.form_title }}" data-ar="{{ .Site.Params.booking.form_title_ar }}">{{ .Site.Params.booking.form_title }}</h3>
+                    <p class="location-address" style="margin-bottom: 1.25rem;" data-en="{{ .Site.Params.booking.form_subtitle }}" data-ar="{{ .Site.Params.booking.form_subtitle_ar }}">{{ .Site.Params.booking.form_subtitle }}</p>
+
+                    <form id="bookingForm" data-template="{{ .Site.Params.booking.whatsapp_template }}" novalidate>
+                        <div class="form-grid">
+                            <div class="field">
+                                <label for="bfName" data-en="{{ .Site.Params.booking.field_name }}" data-ar="{{ .Site.Params.booking.field_name_ar }}">{{ .Site.Params.booking.field_name }}</label>
+                                <input id="bfName" name="name" type="text" required>
+                            </div>
+                            <div class="field">
+                                <label for="bfPhone" data-en="{{ .Site.Params.booking.field_phone }}" data-ar="{{ .Site.Params.booking.field_phone_ar }}">{{ .Site.Params.booking.field_phone }}</label>
+                                <input id="bfPhone" name="phone" type="tel" required>
+                            </div>
+                            <div class="field" style="grid-column: 1 / -1;">
+                                <label for="bfService" data-en="{{ .Site.Params.booking.field_service }}" data-ar="{{ .Site.Params.booking.field_service_ar }}">{{ .Site.Params.booking.field_service }}</label>
+                                <select id="bfService" name="service" required>
+                                    <option value="" data-en="{{ .Site.Params.ui.booking.select_service }}" data-ar="{{ .Site.Params.ui.booking.select_service_ar }}">{{ .Site.Params.ui.booking.select_service }}</option>
+                                    {{ range .Site.Params.services.items }}
+                                        <option value="{{ .title }}" data-en="{{ .title }}" data-ar="{{ .title_ar | default .title }}">{{ .title }}</option>
+                                    {{ end }}
+                                </select>
+                            </div>
+                            <div class="field" style="grid-column: 1 / -1;">
+                                <label for="bfMessage" data-en="{{ .Site.Params.booking.field_message }}" data-ar="{{ .Site.Params.booking.field_message_ar }}">{{ .Site.Params.booking.field_message }}</label>
+                                <textarea id="bfMessage" name="message"></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-wide" id="bfSubmit" data-en="{{ .Site.Params.booking.submit_text }}" data-ar="{{ .Site.Params.booking.submit_text_ar }}">{{ .Site.Params.booking.submit_text }}</button>
+                    </form>
+                </div>
+
+                {{ with .Site.Params.hours }}
+                <div class="location-container" id="hoursContainer">
+                    <h3 class="location-title" data-en="{{ .title }}" data-ar="{{ .title_ar | default .title }}">{{ .title }}</h3>
+                    <div class="skill-list" style="gap: 0.5rem;">
+                        {{ $arItems := .items_ar | default (slice) }}
+                        {{ range $i, $h := .items }}
+                            {{ $arH := $h }}
+                            {{ if lt $i (len $arItems) }}
+                                {{ $arH = index $arItems $i }}
+                            {{ end }}
+                            <div class="skill-item" style="cursor: default;">
+                                <span class="skill-text" data-en="{{ $h }}" data-ar="{{ $arH }}">{{ $h }}</span>
+                            </div>
+                        {{ end }}
+                    </div>
+                </div>
+                {{ end }}
+
+                <div class="contact-methods" id="contactMethods">
+                    {{ with .Site.Params.contact.phone }}
+                    <a href="tel:{{ . }}" class="contact-method">
+                        <div class="contact-icon phone">
+                            <i class="fas fa-phone"></i>
+                        </div>
+                        <div class="contact-info">
+                            <span class="contact-label" data-en="{{ $.Site.Params.ui.labels.phone }}" data-ar="{{ $.Site.Params.ar.ui.labels.phone }}">{{ $.Site.Params.ui.labels.phone }}</span>
+                            <span class="contact-value">{{ . }}</span>
+                        </div>
+                    </a>
+                    {{ end }}
+
+                    {{ with .Site.Params.contact.whatsapp }}
+                    <a href="https://wa.me/{{ replace (replace (replace . " " "") "+" "") "\t" "" }}" target="_blank" class="contact-method">
+                        <div class="contact-icon whatsapp">
+                            <i class="fab fa-whatsapp"></i>
+                        </div>
+                        <div class="contact-info">
+                            <span class="contact-label" data-en="{{ $.Site.Params.ui.labels.whatsapp }}" data-ar="{{ $.Site.Params.ar.ui.labels.whatsapp }}">{{ $.Site.Params.ui.labels.whatsapp }}</span>
+                            <span class="contact-value">{{ . }}</span>
+                        </div>
+                    </a>
+                    {{ end }}
+
+                    {{ with .Site.Params.contact.email }}
+                    <a href="mailto:{{ . }}" class="contact-method">
+                        <div class="contact-icon email">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div class="contact-info">
+                            <span class="contact-label" data-en="{{ $.Site.Params.ui.labels.email }}" data-ar="{{ $.Site.Params.ar.ui.labels.email }}">{{ $.Site.Params.ui.labels.email }}</span>
+                            <span class="contact-value">{{ . }}</span>
+                        </div>
+                    </a>
+                    {{ end }}
+                </div>
+                
+                <div class="social-media">
+                    <h3 class="social-title" data-en="{{ .Site.Params.ui.contact.follow_me_title }}" data-ar="{{ .Site.Params.ar.ui.contact.follow_me_title }}">{{ .Site.Params.ui.contact.follow_me_title }}</h3>
+                    <div class="social-links" id="socialLinks">
+                        {{ with .Site.Params.contact.instagram }}
+                        <a href="{{ . }}" target="_blank" class="social-link instagram" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        {{ end }}
+                        {{ with .Site.Params.contact.facebook }}
+                        <a href="{{ . }}" target="_blank" class="social-link facebook" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                        {{ end }}
+                        {{ with .Site.Params.contact.linkedin }}
+                        <a href="{{ . }}" target="_blank" class="social-link linkedin" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                        {{ end }}
+                    </div>
+                </div>
+                
+                {{ if .Site.Params.contact.location.enabled }}
+                <div class="location-container" id="locationContainer">
+                    <h3 class="location-title" data-en="{{ .Site.Params.ui.labels.location }}" data-ar="{{ .Site.Params.ar.ui.labels.location }}">{{ .Site.Params.ui.labels.location }}</h3>
+                    <p class="location-address" data-en="{{ .Site.Params.contact.location.address }}" data-ar="{{ .Site.Params.ar.contact.location.address | default .Site.Params.contact.location.address }}">{{ .Site.Params.contact.location.address }}</p>
+                    <div class="map-container">
+                        <iframe 
+                            src="https://www.google.com/maps?q={{ .Site.Params.contact.location.latitude }},{{ .Site.Params.contact.location.longitude }}&hl=en&z=14&output=embed"
+                            width="100%" 
+                            height="300" 
+                            style="border:0;" 
+                            allowfullscreen="" 
+                            loading="lazy">
+                        </iframe>
+                    </div>
+                    <a 
+                        href="https://www.google.com/maps/search/?api=1&query={{ .Site.Params.contact.location.latitude }},{{ .Site.Params.contact.location.longitude }}" 
+                        target="_blank" 
+                        class="btn btn-secondary">
+                        <i class="fas fa-directions"></i>
+                        <span data-en="{{ .Site.Params.ui.labels.get_directions }}" data-ar="{{ .Site.Params.ar.ui.labels.get_directions }}">{{ .Site.Params.ui.labels.get_directions }}</span>
+                    </a>
+                </div>
+                {{ end }}
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-title" data-en="{{ .Site.Params.clinic.name }}" data-ar="{{ .Site.Params.clinic.name_ar }}">{{ .Site.Params.clinic.name }}</div>
+                    <div class="footer-muted" data-en="{{ .Site.Params.seo.description }}" data-ar="{{ .Site.Params.seo.description }}">{{ .Site.Params.seo.description }}</div>
+                </div>
+
+                <div>
+                    <div class="footer-title" data-en="{{ .Site.Params.ui.footer.quick_links_title }}" data-ar="{{ .Site.Params.ar.ui.footer.quick_links_title }}">{{ .Site.Params.ui.footer.quick_links_title }}</div>
+                    <div class="footer-links">
+                        <a href="#services" data-en="{{ .Site.Params.ui.nav.services }}" data-ar="{{ .Site.Params.ar.ui.nav.services }}">{{ .Site.Params.ui.nav.services }}</a>
+                        <a href="#team" data-en="{{ .Site.Params.ui.nav.team }}" data-ar="{{ .Site.Params.ar.ui.nav.team }}">{{ .Site.Params.ui.nav.team }}</a>
+                        <a href="#gallery" data-en="{{ .Site.Params.ui.nav.gallery }}" data-ar="{{ .Site.Params.ar.ui.nav.gallery }}">{{ .Site.Params.ui.nav.gallery }}</a>
+                        <a href="#reviews" data-en="{{ .Site.Params.ui.nav.reviews }}" data-ar="{{ .Site.Params.ar.ui.nav.reviews }}">{{ .Site.Params.ui.nav.reviews }}</a>
+                        <a href="#faq" data-en="{{ .Site.Params.ui.nav.faq }}" data-ar="{{ .Site.Params.ar.ui.nav.faq }}">{{ .Site.Params.ui.nav.faq }}</a>
+                        <a href="#contact" data-en="{{ .Site.Params.ui.nav.contact }}" data-ar="{{ .Site.Params.ar.ui.nav.contact }}">{{ .Site.Params.ui.nav.contact }}</a>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="footer-title" data-en="{{ .Site.Params.ui.footer.contact_title }}" data-ar="{{ .Site.Params.ar.ui.footer.contact_title }}">{{ .Site.Params.ui.footer.contact_title }}</div>
+                    <div class="footer-links">
+                        {{ with .Site.Params.contact.phone }}
+                        <a href="tel:{{ . }}">{{ . }}</a>
+                        {{ end }}
+                        {{ with .Site.Params.contact.whatsapp }}
+                        <a href="https://wa.me/{{ replace (replace (replace . " " "") "+" "") "\t" "" }}" target="_blank">WhatsApp</a>
+                        {{ end }}
+                        {{ with .Site.Params.contact.email }}
+                        <a href="mailto:{{ . }}">{{ . }}</a>
+                        {{ end }}
+                        {{ if .Site.Params.contact.location.enabled }}
+                        <a href="https://www.google.com/maps/search/?api=1&query={{ .Site.Params.contact.location.latitude }},{{ .Site.Params.contact.location.longitude }}" target="_blank" data-en="{{ .Site.Params.contact.location.address }}" data-ar="{{ .Site.Params.ar.contact.location.address | default .Site.Params.contact.location.address }}">{{ .Site.Params.contact.location.address }}</a>
+                        {{ end }}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-info">
+                <p>&copy; <span id="currentYear"></span> <span id="footerName" data-en="{{ .Site.Params.clinic.name }}" data-ar="{{ .Site.Params.clinic.name_ar }}">{{ .Site.Params.clinic.name }}</span>. <span id="rightsReserved" data-en="{{ .Site.Params.ui.labels.rights_reserved }}" data-ar="{{ .Site.Params.ar.ui.labels.rights_reserved }}">{{ .Site.Params.ui.labels.rights_reserved }}</span>.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Language and Theme Management
+        let currentLang = 'en';
+        let currentTheme = localStorage.getItem('theme') || 'boys';
+
+        if (currentTheme === 'light' || currentTheme === 'dark') {
+            currentTheme = 'boys';
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            initTheme();
+            initLanguage();
+            initNavigation();
+            initFooter();
+        });
+
+        // Theme Toggle
+        function initTheme() {
+            document.documentElement.setAttribute('data-theme', currentTheme === 'girls' ? 'girls' : 'boys');
+
+            const themeIcon = document.getElementById('themeIcon');
+            if (themeIcon) {
+                themeIcon.className = currentTheme === 'girls' ? 'fas fa-person-dress' : 'fas fa-person';
+            }
+
+            updateThemeLabel();
+        }
+
+        document.getElementById('themeToggle').addEventListener('click', function() {
+            currentTheme = currentTheme === 'boys' ? 'girls' : 'boys';
+            localStorage.setItem('theme', currentTheme);
+            initTheme();
+        });
+
+        function updateThemeLabel() {
+            const themeLabel = document.getElementById('themeLabel');
+            if (!themeLabel) return;
+
+            const boysLabel = currentLang === 'ar' ? themeLabel.getAttribute('data-boys-ar') : themeLabel.getAttribute('data-boys-en');
+            const girlsLabel = currentLang === 'ar' ? themeLabel.getAttribute('data-girls-ar') : themeLabel.getAttribute('data-girls-en');
+
+            themeLabel.textContent = currentTheme === 'girls' ? (girlsLabel || '') : (boysLabel || '');
+        }
+
+        // Language Toggle
+        function initLanguage() {
+            document.body.setAttribute('dir', currentLang === 'ar' ? 'rtl' : 'ltr');
+            document.documentElement.setAttribute('lang', currentLang);
+            updateI18nText();
+            updateI18nAlt();
+            updateThemeLabel();
+        }
+
+        document.getElementById('langToggle').addEventListener('click', function() {
+            currentLang = currentLang === 'en' ? 'ar' : 'en';
+            const langText = document.querySelector('.lang-text');
+            langText.textContent = currentLang === 'en' ? 'AR' : 'EN';
+            initLanguage();
+        });
+
+        function updateI18nText() {
+            document.querySelectorAll('[data-en][data-ar]').forEach(el => {
+                const enText = el.getAttribute('data-en');
+                const arText = el.getAttribute('data-ar');
+                if (enText && arText) {
+                    el.textContent = currentLang === 'en' ? enText : arText;
+                }
+            });
+        }
+
+        function updateI18nAlt() {
+            document.querySelectorAll('[data-alt-en][data-alt-ar]').forEach(el => {
+                const enAlt = el.getAttribute('data-alt-en');
+                const arAlt = el.getAttribute('data-alt-ar');
+                if (enAlt && arAlt) {
+                    el.setAttribute('alt', currentLang === 'en' ? enAlt : arAlt);
+                }
+            });
+        }
+
+        // Footer
+        function initFooter() {
+            const y = document.getElementById('currentYear');
+            if (y) y.textContent = new Date().getFullYear();
+        }
+
+        // Navigation
+        function initNavigation() {
+            const menuBtn = document.getElementById('menuBtn');
+            const closeBtn = document.getElementById('closeBtn');
+            const mobileNav = document.getElementById('mobileNav');
+            const navLinks = document.querySelectorAll('.nav-links a, .desktop-nav a');
+            
+            menuBtn.addEventListener('click', () => mobileNav.classList.add('active'));
+            closeBtn.addEventListener('click', () => mobileNav.classList.remove('active'));
+            
+            navLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileNav.classList.remove('active');
+                    document.querySelectorAll('.desktop-nav a').forEach(item => item.classList.remove('active'));
+                    if (this.closest('.desktop-nav')) this.classList.add('active');
+                });
+            });
+            
+            const sections = document.querySelectorAll('.section');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const id = entry.target.id;
+                        document.querySelectorAll('.desktop-nav a').forEach(item => {
+                            item.classList.remove('active');
+                            if (item.getAttribute('href') === `#${id}`) item.classList.add('active');
+                        });
+                    }
+                });
+            }, { threshold: 0.3 });
+            
+            sections.forEach(section => observer.observe(section));
+        }
+
+        // Booking form (WhatsApp)
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('bookingForm');
+            if (!form) return;
+
+            const wa = '{{ .Site.Params.contact.whatsapp | default "" }}';
+            const waNumber = wa.replace(/\s+/g, '').replace('+', '');
+            const tpl = form.getAttribute('data-template') || '';
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                if (!waNumber) return;
+
+                const name = document.getElementById('bfName')?.value?.trim() || '';
+                const phone = document.getElementById('bfPhone')?.value?.trim() || '';
+
+                const svcEl = document.getElementById('bfService');
+                const service = svcEl && svcEl.selectedIndex >= 0 ? svcEl.options[svcEl.selectedIndex].textContent.trim() : '';
+
+                const message = document.getElementById('bfMessage')?.value?.trim() || '';
+
+                const finalText = (tpl || '')
+                    .replace('{name}', encodeURIComponent(name))
+                    .replace('{phone}', encodeURIComponent(phone))
+                    .replace('{service}', encodeURIComponent(service))
+                    .replace('{message}', encodeURIComponent(message));
+
+                const url = `https://wa.me/${waNumber}?text=${finalText}`;
+                window.open(url, '_blank');
+            });
+        });
+    </script>
+</body>
+</html>
